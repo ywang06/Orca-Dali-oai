@@ -553,13 +553,14 @@ void *x2ap_task(void *arg) {
           	ctxt_SeNB.subframe 		= 	0;
           	ctxt_SeNB.eNB_index 	= 	GTPV1U_ENB_GET_CTXT(received_msg).enb_id_for_DC;
           	eps_bearerID 			=	GTPV1U_ENB_GET_CTXT(received_msg).eps_bearer_id_for_DC;
-         	X2AP_DEBUG("Ctxt for sUE with eNB_id %u rnti %x and eps_rbID %u\n", ctxt_SeNB.module_id,
+         	X2AP_INFO("Ctxt for sUE with eNB_id %u rnti %x and eps_rbID %u\n", ctxt_SeNB.module_id,
          	    		ctxt_SeNB.rnti, eps_bearerID);
 
          break;
 
       case UDP_DATA_IND:
-             x2ap_eNB_DC(&ctxt_SeNB, &eps_bearerID, &received_msg->ittiMsg.udp_data_ind);
+    	  X2AP_INFO("Message from MeNB has arrived to X2AP\n");
+          x2ap_eNB_DC(&ctxt_SeNB, &eps_bearerID, &received_msg->ittiMsg.udp_data_ind);
 
         break;
 
@@ -622,7 +623,7 @@ void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_i
 	uint16_t	pdcp_pdu_SeNB_size = 0;
 	rlc_op_status_t status;
 
-	X2AP_DEBUG("Message from MeNB has arrived to X2AP\n");
+	X2AP_INFO("Message from MeNB has arrived to X2AP\n");
 	pdcp_pdu_SeNB_size = (unsigned short)udp_data_ind->buffer_length;
 	pdcp_pdu_SeNB_p = (mem_block_t *)malloc(pdcp_pdu_SeNB_size + sizeof(mem_block_t));
 	pdcp_pdu_SeNB_p->next = NULL;
@@ -631,11 +632,11 @@ void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_i
 	pdcp_pdu_SeNB_p->size = pdcp_pdu_SeNB_size;
 
 	memcpy(pdcp_pdu_SeNB_p->data, udp_data_ind->buffer, pdcp_pdu_SeNB_size);
-	X2AP_DEBUG("PDCP_PDU coming from MeNB of size %u will be forwarder to RLC Layer\n", pdcp_pdu_SeNB_size);
+	X2AP_INFO("PDCP_PDU coming from MeNB of size %u will be forwarder to RLC Layer\n", pdcp_pdu_SeNB_size);
 	//result = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, *eps_bearerID - 4, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	status = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	if(status){
-		X2AP_DEBUG("PDCP_PDU has been forwarded successfully to rlc_data_req\n");
+		X2AP_INFO("PDCP_PDU has been forwarded successfully to rlc_data_req\n");
 	}else{
 		X2AP_DEBUG("Error forwarding PDCP_PDU to rlc_data_req\n");
 	}

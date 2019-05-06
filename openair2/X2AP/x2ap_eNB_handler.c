@@ -466,9 +466,8 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
   UDP_INIT(message_p).address = MeNB_addr_for_DC;
 
   if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
-   	 X2AP_DEBUG("Socket for Dual Connectivity in MeNB has been created\n");
-   	printf("Socket for Dual Connectivity in MeNB has been created\n");
-  }else{
+   	 X2AP_INFO("Socket for Dual Connectivity in MeNB has been created\n");
+   }else{
    	 X2AP_ERROR("It's not possible to create socket in MeNB\n");
   }
 
@@ -554,6 +553,7 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
 
   instance_p->x2_target_enb_associated_nb ++;
   x2ap_handle_x2_setup_message(instance_p, x2ap_eNB_data, 0);
+
 
   return 0;
 }

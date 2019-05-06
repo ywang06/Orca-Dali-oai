@@ -329,7 +329,7 @@ int x2ap_eNB_generate_x2_setup_response(x2ap_eNB_instance_t *instance_p, x2ap_eN
 
   /*Procedure to initialize server's socket for DC starts*/
 
-  X2AP_DEBUG("Procedure to initialize server's socket for DC starts\n");
+  X2AP_INFO("Procedure to initialize server's socket for DC starts\n");
 
   message_p=itti_alloc_new_message(TASK_X2AP, UDP_INIT);
   if (message_p == NULL) {
@@ -340,8 +340,7 @@ int x2ap_eNB_generate_x2_setup_response(x2ap_eNB_instance_t *instance_p, x2ap_eN
   UDP_INIT(message_p).address = SeNB_addr_for_DC;
 
   if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
-    X2AP_DEBUG("Socket for Dual Connectivity in SeNB has been created\n");
-    printf("Socket for Dual Connectivity in SeNB has been created\n");
+    X2AP_INFO("Socket for Dual Connectivity in SeNB has been created\n");
   }else{
     X2AP_ERROR("It's not possible to create socket in SeNB\n");
   }

@@ -142,6 +142,7 @@ boolean_t pdcp_data_req(
   int split_status = -1;
   char SeNB_IP[20] = "192.168.11.129"; //IP address for SeNB
   char *SeNB_IP_p = NULL;
+  unsigned char *buffer;
 
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PDCP_DATA_REQ,VCD_FUNCTION_IN);
   CHECK_CTXT_ARGS(ctxt_pP);
@@ -414,18 +415,21 @@ boolean_t pdcp_data_req(
     } else if ((ctxt_pP->enb_flag == ENB_FLAG_YES) && (srb_flagP == 0) && (modeP == 2) && (dc_flag == TRUE)){
     	/*split bearer for dual connectivity*/
     		if(current_sn%2){
-    			LOG_D(PDCP,"PDCP-PDU %d is sent via MeNB\n",current_sn);
-    			LOG_D(PDCP, "Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
+    			LOG_I(PDCP,"PDCP-PDU %d is sent via MeNB\n",current_sn);
+    			LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	       	rlc_status = rlc_data_req(ctxt_pP, srb_flagP, MBMS_FLAG_NO, rb_idP, muiP, confirmP, pdcp_pdu_size, pdcp_pdu_p, NULL, NULL);
     	    } else {
-    	        LOG_D(PDCP, "PDCP-PDU %d is sent via SeNB\n",current_sn);
+    	        LOG_I(PDCP, "PDCP-PDU %d is sent via SeNB\n",current_sn);
+    	        LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	       	SeNB_IP_p = SeNB_IP;
     	       	peerIpAddr = inet_addr(SeNB_IP_p);
+    	       	buffer = (unsigned char *)malloc(pdcp_pdu_size);
+    	       	memcpy(buffer, pdcp_pdu_p->data, pdcp_pdu_size );
     	       	messageDC_p = itti_alloc_new_message(TASK_X2AP, UDP_DATA_REQ);
     	       	pdcp_pdu_to_SeNB_p = &messageDC_p->ittiMsg.udp_data_req;
     	       	pdcp_pdu_to_SeNB_p->peer_address  = peerIpAddr;
     	       	pdcp_pdu_to_SeNB_p->peer_port     = peerPort;
-    	       	pdcp_pdu_to_SeNB_p->buffer        = pdcp_pdu_p->data;
+    	       	pdcp_pdu_to_SeNB_p->buffer        = buffer;
     	       	pdcp_pdu_to_SeNB_p->buffer_length = (uint32_t)pdcp_pdu_size;
     	       	pdcp_pdu_to_SeNB_p->buffer_offset = 0;
     	       	split_status = itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, messageDC_p);
