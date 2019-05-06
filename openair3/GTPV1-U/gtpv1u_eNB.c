@@ -566,7 +566,7 @@ gtpv1u_create_s1u_tunnel(
   teid_t                   s1u_teid             = 0;
   gtpv1u_teid_data_t      *gtpv1u_teid_data_p   = NULL;
   gtpv1u_ue_data_t        *gtpv1u_ue_data_p     = NULL;
-  //MessageDef              *message_p            = NULL;
+  MessageDef              *message_p            = NULL;
   hashtable_rc_t           hash_rc              = HASH_TABLE_KEY_NOT_EXISTS;
   int                      i;
   ebi_t                    eps_bearer_id        = 0;
