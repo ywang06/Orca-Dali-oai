@@ -296,3 +296,14 @@ typedef struct protocol_ctxt_s {
 #define exit_fun(msg) exit_function(__FILE__,__FUNCTION__,__LINE__,msg)
 void exit_function(const char *file, const char *function, const int line, const char *s);
 #endif
+
+// DUAL CONNECTIVITY TYPES
+//-----------------------------------------------------------------------------
+typedef boolean_t	dc_flag_t;
+#define  DC_FLAG_YES         TRUE
+#define  DC_FLAG_NO          FALSE
+
+typedef boolean_t	enb_type_t;
+#define  ENB_TYPE_MENB	         TRUE
+#define  ENB_TYPE_SENB           FALSE
+

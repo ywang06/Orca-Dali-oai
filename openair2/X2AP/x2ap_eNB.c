@@ -47,6 +47,14 @@
 #include "assertions.h"
 #include "conversions.h"
 
+#include "udp_eNB_task.h"
+#include "udp_messages_types.h"
+#include "rlc.h"
+#include "platform_types.h"
+#include "gtpv1u_eNB_defs.h"
+#include "gtpv1_u_messages_types.h"
+//#include "gtpv1_u_messages_def.h"
+
 struct x2ap_enb_map;
 struct x2ap_eNB_data_s;
 
@@ -85,6 +93,9 @@ static
 void x2ap_eNB_ue_context_release(instance_t instance,
                                  x2ap_ue_context_release_t *x2ap_ue_context_release);
 
+
+static
+void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_ind_t *udp_data_ind);
 
 static
 void x2ap_eNB_handle_sctp_data_ind(instance_t instance, sctp_data_ind_t *sctp_data_ind) {
@@ -474,6 +485,8 @@ void x2ap_eNB_ue_context_release(instance_t instance,
 
 void *x2ap_task(void *arg) {
   MessageDef *received_msg = NULL;
+  protocol_ctxt_t		ctxt_SeNB;
+  rb_id_t	eps_bearerID;
   int         result;
   X2AP_DEBUG("Starting X2AP layer\n");
   x2ap_eNB_prepare_internal_data();
@@ -532,6 +545,25 @@ void *x2ap_task(void *arg) {
                                       &received_msg->ittiMsg.sctp_data_ind);
         break;
 
+      case GTPV1U_ENB_GET_CTXT:
+          	ctxt_SeNB.module_id		=	GTPV1U_ENB_GET_CTXT(received_msg).enb_id_for_DC;
+          	ctxt_SeNB.enb_flag 		= 	ENB_FLAG_YES;
+          	ctxt_SeNB.rnti 			= 	GTPV1U_ENB_GET_CTXT(received_msg).ue_id_for_DC;
+          	ctxt_SeNB.frame 		= 	0;
+          	ctxt_SeNB.subframe 		= 	0;
+          	ctxt_SeNB.eNB_index 	= 	GTPV1U_ENB_GET_CTXT(received_msg).enb_id_for_DC;
+          	eps_bearerID 			=	GTPV1U_ENB_GET_CTXT(received_msg).eps_bearer_id_for_DC;
+         	X2AP_DEBUG("Ctxt for sUE with eNB_id %u rnti %x and eps_rbID %u\n", ctxt_SeNB.module_id,
+         	    		ctxt_SeNB.rnti, eps_bearerID);
+
+         break;
+
+      case UDP_DATA_IND:
+             x2ap_eNB_DC(&ctxt_SeNB, &eps_bearerID, &received_msg->ittiMsg.udp_data_ind);
+
+        break;
+
+
       default:
         X2AP_ERROR("Received unhandled message: %d:%s\n",
                    ITTI_MSG_ID(received_msg), ITTI_MSG_NAME(received_msg));
@@ -581,3 +613,34 @@ mutex_error:
   LOG_E(X2AP, "mutex error\n");
   exit(1);
 }
+
+static
+void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_ind_t *udp_data_ind){
+	/*This function forward the incoming pdcp_pdu to rlc_data_req*/
+
+	mem_block_t	*pdcp_pdu_SeNB_p = NULL;
+	uint16_t	pdcp_pdu_SeNB_size = 0;
+	rlc_op_status_t status;
+
+	X2AP_DEBUG("Message from MeNB has arrived to X2AP\n");
+	pdcp_pdu_SeNB_size = (unsigned short)udp_data_ind->buffer_length;
+	pdcp_pdu_SeNB_p = (mem_block_t *)malloc(pdcp_pdu_SeNB_size + sizeof(mem_block_t));
+	pdcp_pdu_SeNB_p->next = NULL;
+	pdcp_pdu_SeNB_p->previous = NULL;
+	pdcp_pdu_SeNB_p->data = ((unsigned char *)pdcp_pdu_SeNB_p) + sizeof(mem_block_t);
+	pdcp_pdu_SeNB_p->size = pdcp_pdu_SeNB_size;
+
+	memcpy(pdcp_pdu_SeNB_p->data, udp_data_ind->buffer, pdcp_pdu_SeNB_size);
+	X2AP_DEBUG("PDCP_PDU coming from MeNB of size %u will be forwarder to RLC Layer\n", pdcp_pdu_SeNB_size);
+	//result = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, *eps_bearerID - 4, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
+	status = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
+	if(status){
+		X2AP_DEBUG("PDCP_PDU has been forwarded successfully to rlc_data_req\n");
+	}else{
+		X2AP_DEBUG("Error forwarding PDCP_PDU to rlc_data_req\n");
+	}
+
+}
+
+
+
