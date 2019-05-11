@@ -47,12 +47,12 @@
 #include "assertions.h"
 #include "conversions.h"
 
-#include "udp_eNB_task.h"
-#include "udp_messages_types.h"
+//#include "udp_eNB_task.h"
+//#include "udp_messages_types.h"
 #include "rlc.h"
 #include "platform_types.h"
-#include "gtpv1u_eNB_defs.h"
-#include "gtpv1_u_messages_types.h"
+//#include "gtpv1u_eNB_defs.h"
+//#include "gtpv1_u_messages_types.h"
 //#include "gtpv1_u_messages_def.h"
 
 struct x2ap_enb_map;

@@ -60,6 +60,7 @@ typedef struct IttiMsgText_s {
 #include <openair2/COMMON/as_message.h>
 #include <openair2/RRC/LTE/rrc_types.h>
 #include <openair2/COMMON/rrc_messages_types.h>
+#include <../../../openair2/UE_DC/ue_dc_messages_types.h>
 
 #include <openair3/NAS/COMMON/UTIL/OctetString.h>
 #include <openair3/NAS/COMMON/IES/AccessPointName.h>
@@ -231,6 +232,7 @@ typedef struct IttiMsgText_s {
 #include <openair3/NAS/UE/user_defs.h>
 #include <openair3/NAS/UE/nas_ue_task.h>
 #include <openair3/S1AP/s1ap_eNB.h>
+
 //#include <proto.h>
 
 #include <openair3/GTPV1-U/gtpv1u_eNB_task.h>
@@ -297,6 +299,7 @@ typedef struct {
   TASK_DEF(TASK_RRC_UE,   TASK_PRIORITY_MED,  200, NULL, NULL)  \
   TASK_DEF(TASK_NAS_UE,   TASK_PRIORITY_MED,  200, NULL, NULL)  \
   TASK_DEF(TASK_RAL_UE,   TASK_PRIORITY_MED,  200, NULL, NULL)  \
+  TASK_DEF(TASK_UE_DC,    TASK_PRIORITY_MED,  200, NULL, NULL)  \
   TASK_DEF(TASK_MSC,      TASK_PRIORITY_MED,  200, NULL, NULL)\
   TASK_DEF(TASK_GTPV1_U,  TASK_PRIORITY_MED,  1000,NULL, NULL)\
   TASK_DEF(TASK_UDP,      TASK_PRIORITY_MED,  1000, NULL, NULL)\
