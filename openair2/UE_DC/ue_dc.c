@@ -34,7 +34,7 @@
 #include <inttypes.h>
 #include "platform_types.h"
 #include "intertask_interface.h"
-#include <stdlib.h>
+#include "assertions.h"
 #include <sys/socket.h>
 #include <string.h>
 #include <unistd.h>
@@ -111,7 +111,6 @@ void *ue_dc_task(void *arg) {
 				result);
 		received_msg = NULL;
 	}
-
 	return NULL;
 }
 
@@ -121,7 +120,7 @@ void create_sock_ue_dc(void) {
 
 	MessageDef *message_p;
 	uint16_t port = 2154;
-	char *ue_dc_ip = "192.168.205.150"; //local address for UE_DC
+	char *ue_dc_ip = "192.168.11.150"; //local address for UE_DC
 
 	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_INIT);
 	if (message_p == NULL) {

@@ -412,6 +412,7 @@ int logInit (void) {
   register_log_component("ASN","log",ASN);
   register_log_component("NFAPI_PNF","log",NFAPI_PNF);
   register_log_component("NFAPI_VNF","log",NFAPI_VNF);
+  register_log_component("UE_DC","log",UE_DC);
 
   for (int i=0 ; log_level_names[i].name != NULL ; i++)
     g_log->level2string[i]           = toupper(log_level_names[i].name[0]); // uppercased first letter of level name

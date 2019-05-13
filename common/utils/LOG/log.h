@@ -222,8 +222,8 @@ typedef enum {
   ASN,
   NFAPI_VNF,
   NFAPI_PNF,
-  MAX_LOG_PREDEF_COMPONENTS,
   UE_DC,
+  MAX_LOG_PREDEF_COMPONENTS,
 }
 comp_name_t;
 

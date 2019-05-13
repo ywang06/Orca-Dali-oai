@@ -26,9 +26,10 @@
  * \email carlos.pupiales@upc.edu
  * \version 1.0
  */
+#include <pthread.h>
 
-#ifndef OPENAIR2_UE_DC_UE_DC_H_
-#define OPENAIR2_UE_DC_UE_DC_H_
+#ifndef UE_DC_H_
+#define UE_DC_H_
 
 void *ue_dc_task(void *arg);
 

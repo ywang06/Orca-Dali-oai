@@ -62,18 +62,19 @@ int create_tasks_ue(uint32_t ue_nb) {
   } /* EPC_MODE_ENABLED */
 
   if (ue_nb > 0) {
+      if (itti_create_task (TASK_UE_DC, ue_dc_task, NULL) < 0) {
+        LOG_E(UE_DC, "Create task for UE_DC failed\n");
+        return -1;
+      }
+    }
+
+  if (ue_nb > 0) {
     if (itti_create_task (TASK_RRC_UE, rrc_ue_task, NULL) < 0) {
       LOG_E(RRC, "Create task for RRC UE failed\n");
       return -1;
     }
   }
 
-  if (ue_nb > 0) {
-    if (itti_create_task (TASK_UE_DC, ue_dc_task, NULL) < 0) {
-      LOG_E(UE_DC, "Create task for UE_DC failed\n");
-      return -1;
-    }
-  }
 
   itti_wait_ready(0);
   return 0;
