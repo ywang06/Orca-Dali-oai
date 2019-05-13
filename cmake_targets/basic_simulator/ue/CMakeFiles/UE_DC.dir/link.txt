@@ -1,2 +1,0 @@
-/usr/bin/ar qc libUE_DC.a  CMakeFiles/UE_DC.dir/home/carlos/dualCon/openair2/UE_DC/ue_dc.c.o
-/usr/bin/ranlib libUE_DC.a
