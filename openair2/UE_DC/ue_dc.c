@@ -66,9 +66,10 @@ void *ue_dc_task(void *arg) {
 
 	LOG_D(UE_DC,"Starting UE_DC task\n");
 	itti_mark_task_ready(TASK_UE_DC);
-	create_sock_ue_dc();
+
 
 	while (1) {
+		LOG_D(UE_DC,"estoy en el bucle\n");
 		itti_receive_msg(TASK_UE_DC, &received_msg);
 
 		switch (ITTI_MSG_ID(received_msg)) {
@@ -78,6 +79,7 @@ void *ue_dc_task(void *arg) {
 			break;
 
 		case CTXT_UE_DC:
+			create_sock_ue_dc();
 			ctxt.module_id 	= CTXT_UE_DC(received_msg).module_id;
 			ctxt.enb_flag 	= ENB_FLAG_NO;
 			ctxt.instance 	= CTXT_UE_DC(received_msg).instance;
