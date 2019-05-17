@@ -35,9 +35,30 @@
 #define UE_DC_DATA_REQ(mSGpTR)                   (mSGpTR)->ittiMsg.ue_dc_data_req
 #define UE_DC_DATA_IND(mSGpTR)                   (mSGpTR)->ittiMsg.ue_dc_data_ind
 #define CTXT_UE_DC(mSGpTR)						 (mSGpTR)->ittiMsg.ctxt_ue_dc
+#define UDP_UE_INIT(mSGpTR)						 (mSGpTR)->ittiMsg.udp_ue_init
 
 
 // Define structures
+
+typedef struct udp_ue_init_s {
+	uint32_t  port;
+	char     *address;
+} udp_ue_init_t;
+
+typedef struct udp_ue_data_req_s {
+	uint8_t  *buffer;
+	uint32_t  buffer_length;
+	uint32_t  buffer_offset;
+	uint32_t  peer_address;
+	uint32_t  peer_port;
+}udp_ue_data_req_t;
+
+typedef struct udp_ue_data_ind_s {
+	uint8_t  *buffer;
+	uint32_t  buffer_length;
+	uint32_t  peer_address;
+	uint32_t  peer_port;
+}udp_ue_data_ind_t;
 
 typedef struct ue_dc_data_req_s {
 	protocol_ctxt_t *ctxt_dc_p;

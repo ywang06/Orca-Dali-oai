@@ -617,7 +617,7 @@ mutex_error:
 
 static
 void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_ind_t *udp_data_ind){
-	/*This function forward the incoming pdcp_pdu to rlc_data_req*/
+	/*This function forward the incoming pdcp_pdu to rlc_data_req in SeNB*/
 
 	mem_block_t	*pdcp_pdu_SeNB_p = NULL;
 	uint16_t	pdcp_pdu_SeNB_size = 0;

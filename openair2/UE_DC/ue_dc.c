@@ -49,7 +49,7 @@
 void *ue_dc_task(void *arg);
 
 static
-void create_sock_ue_dc(void);
+void udp_init(void);
 
 static
 void send_rlc_sdu(ue_dc_data_req_t	*ue_dc_data_req);
@@ -62,11 +62,10 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*ue_dc_data_ind)
 void *ue_dc_task(void *arg) {
 	MessageDef *received_msg = NULL;
 	protocol_ctxt_t	ctxt;
-	int result;
 
 	LOG_D(UE_DC,"Starting UE_DC task\n");
 	itti_mark_task_ready(TASK_UE_DC);
-
+	udp_init();
 
 	while (1) {
 		LOG_D(UE_DC,"estoy en el bucle\n");
@@ -79,7 +78,7 @@ void *ue_dc_task(void *arg) {
 			break;
 
 		case CTXT_UE_DC:
-			create_sock_ue_dc();
+			LOG_D(UE_DC,"Context for mUE has arrived to UE_DC task\n");
 			ctxt.module_id 	= CTXT_UE_DC(received_msg).module_id;
 			ctxt.enb_flag 	= ENB_FLAG_NO;
 			ctxt.instance 	= CTXT_UE_DC(received_msg).instance;
@@ -92,77 +91,77 @@ void *ue_dc_task(void *arg) {
 
 			break;
 
+		case UE_DC_DATA_REQ:
+			send_rlc_sdu(&received_msg->ittiMsg.ue_dc_data_req);
+
+		  break;
+
 		case UDP_DATA_IND:
 			LOG_I(UE_DC,"Message from UE has arrived to UE_DC\n");
 			recv_rlc_sdu(&ctxt, &received_msg->ittiMsg.udp_data_ind);
 
 			break;
 
-		case UE_DC_DATA_REQ:
-			send_rlc_sdu(&received_msg->ittiMsg.ue_dc_data_req);
 
-			break;
 
 		default:
 			LOG_E(UE_DC, "Received unhandled message: %d:%s\n", ITTI_MSG_ID(received_msg), ITTI_MSG_NAME(received_msg));
 			break;
 		}
 
-		result = itti_free(ITTI_MSG_ORIGIN_ID(received_msg), received_msg);
-		AssertFatal(result == EXIT_SUCCESS, "Failed to free memory (%d)!\n",
-				result);
+		itti_free(ITTI_MSG_ORIGIN_ID(received_msg), received_msg);
 		received_msg = NULL;
 	}
 	return NULL;
 }
 
 static
-void create_sock_ue_dc(void) {
+void udp_init(void) {
 	/*This function handle the creation of udp sockets for Dual Connectivity in UEs*/
+	MessageDef	*message_p;
+	uint16_t	port = 2454;
+	char *ue_dc_ip = "192.168.11.150"; //address for UE_DC
 
-	MessageDef *message_p;
-	uint16_t port = 2154;
-	char *ue_dc_ip = "192.168.11.150"; //local address for UE_DC
-
-	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_INIT);
+	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_UE_INIT);
 	if (message_p == NULL) {
 		LOG_E(UE_DC,"Error allocating the message udp init\n");
 	}
-	UDP_INIT(message_p).port = port;
-	UDP_INIT(message_p).address = ue_dc_ip;
-	if (itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0) {
+	UDP_UE_INIT(message_p).port = port;
+	UDP_UE_INIT(message_p).address = ue_dc_ip;
+	if (itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0) {
 		LOG_D(UE_DC,"The socket for UE_DC has been created successfully\n");
-	}
+	}else{
 		LOG_E(UE_DC,"The socket for UE_DC has not been created\n");
+	}
 
 }
 
 static
 void send_rlc_sdu(ue_dc_data_req_t	*ue_dc_data_req){
-	/*This function sends the rlc_sdu from mUE or sUE through udp sockets*/
-
-	MessageDef     *message_p       = NULL;
+	/*This function sends the rlc_sdu from sUE or mUE through udp socket*/
+	MessageDef	*message_p = NULL;
 	udp_data_req_t	*udp_data_req_p = NULL;
-	char ue_ip[20] = "192.168.11.150"; //IP address for mUE
-	char *ue_ip_p = NULL;
+	char target_ue[20] = "192.168.11.150"; //IP address for receiver UE
+	char *target_ue_p = NULL;
 	unsigned char *buffer;
 
-	LOG_I(UE_DC,"The delivery of rlc_sdu has been requested\n");
-	ue_ip_p = ue_ip;
+	target_ue_p = target_ue;
 	buffer = (unsigned char *)malloc(ue_dc_data_req->sdu_size_dc);
 	memcpy(buffer, ue_dc_data_req->sdu_buffer_dc_p, ue_dc_data_req->sdu_size_dc);
 	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_DATA_REQ);
 	udp_data_req_p = &message_p->ittiMsg.udp_data_req;
-	udp_data_req_p->peer_address = inet_addr(ue_ip_p);
+	udp_data_req_p->peer_address = inet_addr(target_ue_p);
 	udp_data_req_p->peer_port = 2154;
 	udp_data_req_p->buffer = buffer;
 	udp_data_req_p->buffer_length = (uint32_t)ue_dc_data_req->sdu_size_dc;
 	udp_data_req_p->buffer_offset = 0;
-	if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
+	if(itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0){
 		LOG_I(UE_DC, "rlc_sdu has been forwarded to pdcp layer in sUE\n");
 	}else {
 		LOG_E(UE_DC, "Message didn't send to UE\n");
 	}
+
+
 }
 
 static

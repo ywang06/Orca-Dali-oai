@@ -39,8 +39,7 @@
 #include "assertions.h"
 #include "intertask_interface.h"
 #include "common/ran_context.h"
-#include "../../UE_DC/ue_dc_messages_types.h"
-//#include "../../UE_DC/ue_dc_messages_def.h"
+#include "ue_dc_messages_types.h"
 
 extern RAN_CONTEXT_t RC;
 
@@ -591,7 +590,8 @@ void rlc_data_ind     (
   const sdu_size_t  sdu_sizeP,
   mem_block_t      *sdu_pP) {
   //-----------------------------------------------------------------------------
-   boolean_t	dc_flag = FALSE;//flag for Dual Connectivity
+   boolean_t	dc_flag = TRUE;//flag for Dual Connectivity
+   boolean_t	ue_flag = TRUE; //TRUE for mUE, FALSE for sUE
 
   LOG_D(RLC, PROTOCOL_CTXT_FMT"[%s %u] Display of rlc_data_ind: size %u\n",
         PROTOCOL_CTXT_ARGS(ctxt_pP),
@@ -601,7 +601,6 @@ void rlc_data_ind     (
   rlc_util_print_hex_octets(RLC, (unsigned char *)sdu_pP->data, sdu_sizeP);
 
   if (ctxt_pP->enb_flag) {
-	  printf("estoy en rlc ind\n");
 #if T_TRACER
     T(T_ENB_RLC_UL, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->rnti), T_INT(rb_idP), T_INT(sdu_sizeP));
 #endif
@@ -618,12 +617,14 @@ void rlc_data_ind     (
       itti_send_msg_to_task(TASK_DU_F1, ENB_MODULE_ID_TO_INSTANCE(ctxt_pP->module_id), msg);
       return;
     }
-  } else if ((ctxt_pP->enb_flag == ENB_FLAG_NO) && (srb_flagP == 0) && (dc_flag == TRUE)){
+    get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
+
+  } else if ((ctxt_pP->enb_flag == ENB_FLAG_NO) && (srb_flagP == 0) && (dc_flag == TRUE) && (ue_flag == FALSE)){
 	  printf("estoy en rlc_data_ind ue\n");
 	  MessageDef *msg_dc;
 	  unsigned char	*new_buffer;
 	  new_buffer = (unsigned char *)malloc(sdu_sizeP);
-	  memcpy(&new_buffer, &sdu_pP->data, sdu_sizeP);
+	  memcpy(new_buffer, sdu_pP->data, sdu_sizeP);
 	  msg_dc = itti_alloc_new_message(TASK_RLC_UE, UE_DC_DATA_REQ);
 	  UE_DC_DATA_REQ(msg_dc).sdu_size_dc = sdu_sizeP;
 	  UE_DC_DATA_REQ(msg_dc).sdu_buffer_dc_p = new_buffer;
@@ -632,8 +633,9 @@ void rlc_data_ind     (
 	  }else {
 		  LOG_E(RLC, "It was not possible to forward RLC-SDU to UE_DC TASK\n");
 	  	 }
-  } else
+  } else {
   		 get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
+  }
 }
 //-----------------------------------------------------------------------------
 void rlc_data_conf     (const protocol_ctxt_t *const ctxt_pP,

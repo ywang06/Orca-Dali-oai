@@ -223,6 +223,7 @@ typedef enum {
   NFAPI_VNF,
   NFAPI_PNF,
   UE_DC,
+  UDP_UE_DC,
   MAX_LOG_PREDEF_COMPONENTS,
 }
 comp_name_t;

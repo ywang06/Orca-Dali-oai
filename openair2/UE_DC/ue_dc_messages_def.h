@@ -22,4 +22,5 @@
 MESSAGE_DEF(UE_DC_DATA_REQ,		MESSAGE_PRIORITY_MED,		ue_dc_data_req_t,		ue_dc_data_req)
 MESSAGE_DEF(UE_DC_DATA_IND,		MESSAGE_PRIORITY_MED,		ue_dc_data_ind_t,		ue_dc_data_ind)
 MESSAGE_DEF(CTXT_UE_DC,		MESSAGE_PRIORITY_MED,		ctxt_ue_dc_t,		ctxt_ue_dc)
+MESSAGE_DEF(UDP_UE_INIT,		MESSAGE_PRIORITY_MED,		udp_ue_init_t,		udp_ue_init)
 

@@ -32,5 +32,8 @@
 #define UE_DC_H_
 
 void *ue_dc_task(void *arg);
+void *udp_ue_dc_task(void *arg);
+
+void udp_ue_recv_data(int sd);
 
 #endif /* OPENAIR2_UE_DC_UE_DC_H_ */
