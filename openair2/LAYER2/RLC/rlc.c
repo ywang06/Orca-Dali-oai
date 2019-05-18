@@ -620,7 +620,6 @@ void rlc_data_ind     (
     get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
 
   } else if ((ctxt_pP->enb_flag == ENB_FLAG_NO) && (srb_flagP == 0) && (dc_flag == TRUE) && (ue_flag == FALSE)){
-	  printf("estoy en rlc_data_ind ue\n");
 	  MessageDef *msg_dc;
 	  unsigned char	*new_buffer;
 	  new_buffer = (unsigned char *)malloc(sdu_sizeP);
@@ -629,9 +628,9 @@ void rlc_data_ind     (
 	  UE_DC_DATA_REQ(msg_dc).sdu_size_dc = sdu_sizeP;
 	  UE_DC_DATA_REQ(msg_dc).sdu_buffer_dc_p = new_buffer;
 	  if (itti_send_msg_to_task(TASK_UE_DC, INSTANCE_DEFAULT, msg_dc) == 0){
-		  LOG_D(RLC, "RLC-SDU has been forwarded to UE_DC TASK\n");
+		  LOG_D(RLC, "RLC_SDU has been forwarded to UE_DC TASK\n");
 	  }else {
-		  LOG_E(RLC, "It was not possible to forward RLC-SDU to UE_DC TASK\n");
+		  LOG_E(RLC, "It was not possible to forward RLC_SDU to UE_DC TASK\n");
 	  	 }
   } else {
   		 get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);

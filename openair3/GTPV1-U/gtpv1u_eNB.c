@@ -674,7 +674,7 @@ gtpv1u_create_s1u_tunnel(
     }
   }
 
-  //Retrieve context for DC
+  //Retrieve context for Dual Connectivity
 
   message_p = itti_alloc_new_message(TASK_GTPV1_U, GTPV1U_ENB_GET_CTXT);
   if (message_p == NULL) {

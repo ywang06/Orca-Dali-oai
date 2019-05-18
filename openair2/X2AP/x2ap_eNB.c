@@ -47,13 +47,8 @@
 #include "assertions.h"
 #include "conversions.h"
 
-//#include "udp_eNB_task.h"
-//#include "udp_messages_types.h"
 #include "rlc.h"
 #include "platform_types.h"
-//#include "gtpv1u_eNB_defs.h"
-//#include "gtpv1_u_messages_types.h"
-//#include "gtpv1_u_messages_def.h"
 
 struct x2ap_enb_map;
 struct x2ap_eNB_data_s;
@@ -633,7 +628,6 @@ void x2ap_eNB_DC(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, udp_data_i
 
 	memcpy(pdcp_pdu_SeNB_p->data, udp_data_ind->buffer, pdcp_pdu_SeNB_size);
 	X2AP_INFO("PDCP_PDU coming from MeNB of size %u will be forwarder to RLC Layer\n", pdcp_pdu_SeNB_size);
-	//result = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, *eps_bearerID - 4, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	status = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	if(status){
 		X2AP_INFO("PDCP_PDU has been forwarded successfully to rlc_data_req\n");

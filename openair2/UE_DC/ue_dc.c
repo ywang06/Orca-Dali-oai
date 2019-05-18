@@ -68,10 +68,10 @@ void *ue_dc_task(void *arg) {
 	udp_init();
 
 	while (1) {
-		LOG_D(UE_DC,"estoy en el bucle\n");
 		itti_receive_msg(TASK_UE_DC, &received_msg);
 
 		switch (ITTI_MSG_ID(received_msg)) {
+
 		case TERMINATE_MESSAGE:
 			LOG_W(UE_DC," *** Exiting UE_DC thread\n");
 			itti_exit_task();
@@ -119,17 +119,17 @@ static
 void udp_init(void) {
 	/*This function handle the creation of udp sockets for Dual Connectivity in UEs*/
 	MessageDef	*message_p;
-	uint16_t	port = 2454;
+	uint16_t	port = 2154;
 	char *ue_dc_ip = "192.168.11.150"; //address for UE_DC
 
-	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_UE_INIT);
+	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_INIT);
 	if (message_p == NULL) {
 		LOG_E(UE_DC,"Error allocating the message udp init\n");
 	}
-	UDP_UE_INIT(message_p).port = port;
-	UDP_UE_INIT(message_p).address = ue_dc_ip;
+	UDP_INIT(message_p).port = port;
+	UDP_INIT(message_p).address = ue_dc_ip;
 	if (itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0) {
-		LOG_D(UE_DC,"The socket for UE_DC has been created successfully\n");
+		LOG_D(UE_DC,"Message UDP_INIT has been sent successfully to task UDP_UE_DC\n");
 	}else{
 		LOG_E(UE_DC,"The socket for UE_DC has not been created\n");
 	}
@@ -179,12 +179,12 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*udp_data_ind){
 	rlc_sdu_p->next = NULL;
 	rlc_sdu_p->previous = NULL;
 	rlc_sdu_p->size = rlc_sdu_size;
-	memcpy(rlc_sdu_p->data, udp_data_ind->buffer, rlc_sdu_size);
+	memcpy(&rlc_sdu_p->data, &udp_data_ind->buffer, rlc_sdu_size);
 
 	if (pdcp_data_ind(ctxt_ue_dc_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, rlc_sdu_size, rlc_sdu_p )){
 		LOG_D(UE_DC, "rlc_sdu has been forwarded to pdcp_data_ind successfully\n");
 	}else{
-		LOG_E(UE_DC, "Error forwarding rlc_sdu has to pdcp_data_ind\n");
+		LOG_E(UE_DC, "Error forwarding rlc_sdu to pdcp_data_ind\n");
 	}
 
 }

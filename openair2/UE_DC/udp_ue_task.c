@@ -66,6 +66,8 @@ void *udp_ue_dc_task(void *arg){
 	  while(1) {
 	    itti_receive_msg(TASK_UDP_UE_DC, &received_msg);
 
+	    if (received_msg != NULL) {
+
 	      switch (ITTI_MSG_ID(received_msg)) {
 
 	      case TERMINATE_MESSAGE:
@@ -77,8 +79,7 @@ void *udp_ue_dc_task(void *arg){
 	        LOG_D(UDP_UE_DC, "Received UDP_INIT\n");
 	        sd = udp_ue_create_socket(received_msg->ittiMsg.udp_init.port, received_msg->ittiMsg.udp_init.address);
 	      	}
-
-	      break;
+	      	  break;
 
 	      case UDP_DATA_REQ: {
 	        ssize_t bytes_written;
@@ -100,20 +101,22 @@ void *udp_ue_dc_task(void *arg){
 	        if (bytes_written != udp_data_req_p->buffer_length) {
 	          LOG_E(UDP_UE_DC, "There was an error while writing to socket %d\n", sd);
 	        }
+	        itti_free(ITTI_MSG_ORIGIN_ID(received_msg), udp_data_req_p->buffer);
 	      }
 
-	      break;
+	      	  break;
 
 	      default: {
 	        LOG_W(UDP_UE_DC, "Unkwnon message ID %d:%s\n",
 	              ITTI_MSG_ID(received_msg),
 	              ITTI_MSG_NAME(received_msg));
-	      }
-	      break;
-	      }
+	      	  }
 
+	      	  break;
+	      }
 	      itti_free (ITTI_MSG_ORIGIN_ID(received_msg), received_msg);
-	      received_msg = NULL;
+	   	  received_msg = NULL;
+	    }
 
 	    udp_events = itti_get_events(TASK_UDP_UE_DC, &events);
 	    int i=0;
@@ -140,7 +143,7 @@ int udp_ue_create_socket(uint32_t	port, char	*address) {
 
 	LOG_I(UDP_UE_DC, "Initializing UDP for local address %s with port %u\n", address, port);
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
-	if (sock > 0){
+	if (sock < 0){
 		LOG_E(UDP_UE_DC,"Failed to create new socket\n");
 	}
 	memset(&sin, 0, sizeof(struct sockaddr_in));
@@ -172,7 +175,7 @@ void udp_ue_recv_data(int sd){
 
 	    if ((n = recvfrom(sd, l_buffer, sizeof(l_buffer), 0,
 	                      (struct sockaddr *)&addr, &from_len)) < 0) {
-	      LOG_E(UDP_UE_DC, "Recvfrom failed\n");
+	      LOG_E(UDP_UE_DC,"Recvfrom failed\n");
 	      return;
 	    } else if (n == 0) {
 	      LOG_W(UDP_UE_DC, "Recvfrom returned 0\n");
@@ -193,6 +196,7 @@ void udp_ue_recv_data(int sd){
 	        itti_free(TASK_UDP_UE_DC, forwarded_buffer);
 	        return;
 	      }
+	      LOG_D(UDP_UE_DC, "Message has been forwarded to TASK_UE_DC\n");
 	    }
 	  }
 	}
