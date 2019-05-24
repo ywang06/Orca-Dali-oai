@@ -45,14 +45,8 @@
 #include "assertions.h"
 #include "conversions.h"
 
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-
+#include "x2u_enb.h"
+#include "enb_config.h"
 
 static
 int x2ap_eNB_handle_x2_setup_request (instance_t instance,
@@ -430,8 +424,6 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
   uint32_t                            eNB_id = 0;
 
   MessageDef						  *message_p=NULL;
-  uint16_t							  client_port = 2153; /*Port for Client socket*/
-  char								  *MeNB_addr_for_DC = "192.168.11.150"; /*MeNB IP address for DC*/
 
   DevAssert (pdu != NULL);
   x2SetupResponse = &pdu->choice.successfulOutcome.value.choice.X2SetupResponse;
@@ -452,26 +444,6 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
   }
 
   X2AP_DEBUG("Received a new X2 setup response\n");
-
-  /*Procedure to initialize client's socket for DC starts*/
-
-  X2AP_DEBUG("Procedure to initialize client's socket for DC starts\n");
-
-  message_p=itti_alloc_new_message(TASK_X2AP, UDP_INIT);
-  if (message_p == NULL) {
-   	 X2AP_ERROR("It's not possible to allocate a message to TASK_UDP\n");
-     return -1;
-  }
-  UDP_INIT(message_p).port = client_port;
-  UDP_INIT(message_p).address = MeNB_addr_for_DC;
-
-  if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
-   	 X2AP_INFO("Socket for Dual Connectivity in MeNB has been created\n");
-   }else{
-   	 X2AP_ERROR("It's not possible to create socket in MeNB\n");
-  }
-
-  /*Procedure to initialize client's socket for DC ends*/
 
   X2AP_FIND_PROTOCOLIE_BY_ID(X2AP_X2SetupResponse_IEs_t, ie, x2SetupResponse,
                              X2AP_ProtocolIE_ID_id_GlobalENB_ID, true);
@@ -552,6 +524,21 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
   DevAssert(instance_p != NULL);
 
   instance_p->x2_target_enb_associated_nb ++;
+
+  /*Analyze if dual connectivity is enabled
+   * if true, send configuration parameters to x2u task*/
+  if (is_dc_enabled ()){
+	  message_p = itti_alloc_new_message(TASK_X2AP, DC_ENB_INIT);
+	  if (message_p == NULL) {
+	   	 X2AP_ERROR("It's not possible to allocate a message to TASK_X2U\n");
+	     return -1;
+	  }
+
+	RCconfig_DC(message_p); /*get the configuration parameters for dual connectivity*/
+	itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, message_p);
+  }
+    /*Procedure to initialize dual connectivity ends*/
+
   x2ap_handle_x2_setup_message(instance_p, x2ap_eNB_data, 0);
 
 

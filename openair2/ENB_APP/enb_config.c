@@ -2872,3 +2872,35 @@ void read_config_and_init(void) {
     RCconfig_RRC(enb_id, RC.rrc[enb_id],macrlc_has_f1[enb_id]);
   }
 }
+
+int RCconfig_DC(MessageDef *msg_p){
+	paramdef_t		DCParams[]	 = DCPARAMS_DESC;
+	paramdef_t 		NIParams[]   = NETPARAMS_DESC;
+	char *remote_address = NULL;
+	char *local_address = NULL;
+
+	config_get(DCParams, sizeof(DCParams)/sizeof(paramdef_t), ENB_CONFIG_STRING_DC_CONFIG);
+	config_get(NIParams, sizeof(NIParams)/sizeof(paramdef_t), ENB_CONFIG_STRING_NETWORK_INTERFACES_CONFIG);
+
+	DC_ENB_INIT(msg_p).enabled = TRUE;
+	DC_ENB_INIT(msg_p).port_for_x2u = *DCParams[DC_PORT_FOR_X2U_IDX].uptr;
+
+	printf("puerto %u\n",DC_ENB_INIT(msg_p).port_for_x2u);
+
+	if(strcasecmp(*(DCParams[DC_ENB_TYPE_IDX].strptr), "menb") == 0){
+		DC_ENB_INIT(msg_p).enb_type = TRUE; //MeNB
+	}else {
+		DC_ENB_INIT(msg_p).enb_type = FALSE; //SeNB;
+	}
+
+	local_address = *(NIParams[ENB_IPV4_ADDR_FOR_X2C_IDX].strptr);
+	strcpy(DC_ENB_INIT(msg_p).local_address_for_x2u,local_address);
+	printf("direccion local %s \n",DC_ENB_INIT(msg_p).local_address_for_x2u);
+
+	remote_address = *(DCParams[DC_REMOTE_ENB_ADDRESS_IDX].strptr);
+	strcpy(DC_ENB_INIT(msg_p).remote_enb_address, remote_address);
+	printf("direccion remota %s \n",DC_ENB_INIT(msg_p).remote_enb_address);
+
+	return 0;
+}
+

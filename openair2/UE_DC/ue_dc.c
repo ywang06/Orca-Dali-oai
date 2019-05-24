@@ -179,8 +179,8 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*udp_data_ind){
 	rlc_sdu_p->next = NULL;
 	rlc_sdu_p->previous = NULL;
 	rlc_sdu_p->size = rlc_sdu_size;
-	memcpy(&rlc_sdu_p->data, &udp_data_ind->buffer, rlc_sdu_size);
-
+	rlc_sdu_p->data = ((unsigned char *)rlc_sdu_p) + sizeof(mem_block_t);
+	memcpy(rlc_sdu_p->data, udp_data_ind->buffer, rlc_sdu_size);
 	if (pdcp_data_ind(ctxt_ue_dc_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, rlc_sdu_size, rlc_sdu_p )){
 		LOG_D(UE_DC, "rlc_sdu has been forwarded to pdcp_data_ind successfully\n");
 	}else{

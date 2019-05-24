@@ -63,8 +63,6 @@
 
 #include "ENB_APP/enb_config.h"
 
-
-
 extern int otg_enabled;
 extern uint8_t nfapi_mode;
 #include "common/ran_context.h"
@@ -81,16 +79,6 @@ hash_table_t  *pdcp_coll_p = NULL;
 
   static int mbms_socket = -1;
 #endif
-
-
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-
 
 /* pdcp module parameters and related functions*/
 static pdcp_params_t pdcp_params= {0,NULL};
@@ -135,14 +123,7 @@ boolean_t pdcp_data_req(
   uint16_t           pdcp_uid=0;
 
   MessageDef     *messageDC_p       = NULL;
-  udp_data_req_t *pdcp_pdu_to_SeNB_p  = NULL;
-  uint32_t peerIpAddr;
-  uint16_t peerPort = 2153; //Port for DC
-  boolean_t	dc_flag = TRUE;
-  int split_status = -1;
-  char SeNB_IP[20] = "192.168.11.129"; //IP address for SeNB
-  char *SeNB_IP_p = NULL;
-  unsigned char *buffer;
+  unsigned char *sent_pduP;
 
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PDCP_DATA_REQ,VCD_FUNCTION_IN);
   CHECK_CTXT_ARGS(ctxt_pP);
@@ -373,7 +354,7 @@ boolean_t pdcp_data_req(
     LOG_DUMPMSG(PDCP,DEBUG_PDCP,(char *)pdcp_pdu_p->data,pdcp_pdu_size,
                 "[MSG] PDCP DL %s PDU on rb_id %d\n",(srb_flagP)? "CONTROL" : "DATA", rb_idP);
 
-    if ((pdcp_pdu_p!=NULL) && (srb_flagP == 0) && (ctxt_pP->enb_flag == 1) && (dc_flag == FALSE)) {
+    if ((pdcp_pdu_p!=NULL) && (srb_flagP == 0) && (ctxt_pP->enb_flag == 1) && (RC.dc_enb_dataP->enabled == FALSE)) {
       LOG_D(PDCP, "pdcp data req on drb %d, size %d, rnti %x, node_type %d \n",
             rb_idP, pdcp_pdu_size, ctxt_pP->rnti, RC.rrc[ctxt_pP->module_id]->node_type);
 
@@ -412,32 +393,24 @@ boolean_t pdcp_data_req(
             break;
         } // switch case
       } /* end if node_type is not DU */
-    } else if ((ctxt_pP->enb_flag == ENB_FLAG_YES) && (srb_flagP == 0) && (modeP == 2) && (dc_flag == TRUE)){
+    } else if ((ctxt_pP->enb_flag == ENB_FLAG_YES) && (srb_flagP == 0) && (modeP == 2) && (RC.dc_enb_dataP->enabled == TRUE) && (RC.dc_enb_dataP->enb_type == TRUE)){
     	/*split bearer for dual connectivity*/
-    		if(current_sn%2){
+    		if(!(current_sn%2)){
     			LOG_I(PDCP,"PDCP-PDU %d is sent via MeNB\n",current_sn);
     			LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	       	rlc_status = rlc_data_req(ctxt_pP, srb_flagP, MBMS_FLAG_NO, rb_idP, muiP, confirmP, pdcp_pdu_size, pdcp_pdu_p, NULL, NULL);
     	    } else {
     	        LOG_I(PDCP, "PDCP-PDU %d is sent via SeNB\n",current_sn);
     	        LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
-    	       	SeNB_IP_p = SeNB_IP;
-    	       	peerIpAddr = inet_addr(SeNB_IP_p);
-    	       	buffer = (unsigned char *)malloc(pdcp_pdu_size);
-    	       	memcpy(buffer, pdcp_pdu_p->data, pdcp_pdu_size );
-    	       	messageDC_p = itti_alloc_new_message(TASK_X2AP, UDP_DATA_REQ);
-    	       	pdcp_pdu_to_SeNB_p = &messageDC_p->ittiMsg.udp_data_req;
-    	       	pdcp_pdu_to_SeNB_p->peer_address  = peerIpAddr;
-    	       	pdcp_pdu_to_SeNB_p->peer_port     = peerPort;
-    	       	pdcp_pdu_to_SeNB_p->buffer        = buffer;
-    	       	pdcp_pdu_to_SeNB_p->buffer_length = (uint32_t)pdcp_pdu_size;
-    	       	pdcp_pdu_to_SeNB_p->buffer_offset = 0;
-    	       	split_status = itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, messageDC_p);
-    	       	if (split_status == 0){
+    	        sent_pduP = (unsigned char *)malloc(pdcp_pdu_size);
+    	        memcpy(sent_pduP, pdcp_pdu_p->data, pdcp_pdu_size );
+    	        messageDC_p = itti_alloc_new_message(TASK_PDCP_ENB, DC_ENB_DATA_REQ);
+    	        DC_ENB_DATA_REQ(messageDC_p).pdu_size_dc = pdcp_pdu_size;
+    	        DC_ENB_DATA_REQ(messageDC_p).pdu_buffer_dcP = sent_pduP;
+    	       	if (itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, messageDC_p) == 0){
     	       	   	rlc_status = 1;
     	       	}else rlc_status = -1;
     	      }
-
     	       	switch (rlc_status) {
     	       		case RLC_OP_STATUS_OK:
     	       			LOG_D(PDCP, "Data sending request over RLC succeeded!\n");

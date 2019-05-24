@@ -633,6 +633,7 @@ void rlc_data_ind     (
 		  LOG_E(RLC, "It was not possible to forward RLC_SDU to UE_DC TASK\n");
 	  	 }
   } else {
+	  	  LOG_D(RLC,"este es mUE PANAS\n");
   		 get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
   }
 }

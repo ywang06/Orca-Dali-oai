@@ -43,13 +43,8 @@
 #include "assertions.h"
 #include "conversions.h"
 
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
+#include "x2u_enb.h"
+#include "enb_config.h"
 
 int x2ap_eNB_generate_x2_setup_request(
   x2ap_eNB_instance_t *instance_p, x2ap_eNB_data_t *x2ap_eNB_data_p)
@@ -203,8 +198,6 @@ int x2ap_eNB_generate_x2_setup_response(x2ap_eNB_instance_t *instance_p, x2ap_eN
   int       ret = 0;
 
   MessageDef						  *message_p = NULL;
-  uint16_t							   server_port = 2153; /*Port for Server socket*/
-  char						          *SeNB_addr_for_DC = "192.168.11.129"; /*SeNB IP address for DC*/
 
   DevAssert(instance_p != NULL);
   DevAssert(x2ap_eNB_data_p != NULL);
@@ -327,26 +320,18 @@ int x2ap_eNB_generate_x2_setup_response(x2ap_eNB_instance_t *instance_p, x2ap_eN
 
   x2ap_eNB_itti_send_sctp_data_req(instance_p->instance, x2ap_eNB_data_p->assoc_id, buffer, len, 0);
 
-  /*Procedure to initialize server's socket for DC starts*/
+  /*Analyze if dual connectivity is enabled
+  * if true, send configuration parameters to x2u task*/
+    if (is_dc_enabled ()){
+  	  message_p = itti_alloc_new_message(TASK_X2AP, DC_ENB_INIT);
+  	  if (message_p == NULL) {
+  	   	 X2AP_ERROR("It's not possible to allocate a message to TASK_UDP\n");
+  	     return -1;
+  	  }
 
-  X2AP_INFO("Procedure to initialize server's socket for DC starts\n");
-
-  message_p=itti_alloc_new_message(TASK_X2AP, UDP_INIT);
-  if (message_p == NULL) {
-   	 X2AP_ERROR("It's not possible to allocate a message to TASK_UDP\n");
-   	 return -1;
-  }
-  UDP_INIT(message_p).port = server_port;
-  UDP_INIT(message_p).address = SeNB_addr_for_DC;
-
-  if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
-    X2AP_INFO("Socket for Dual Connectivity in SeNB has been created\n");
-  }else{
-    X2AP_ERROR("It's not possible to create socket in SeNB\n");
-  }
-
-  /*Procedure to initialize server's socket for DC ends*/
-
+  	RCconfig_DC(message_p); /*get the configuration parameters for dual connectivity*/
+  	itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, message_p);
+    }
 
   return ret;
 }

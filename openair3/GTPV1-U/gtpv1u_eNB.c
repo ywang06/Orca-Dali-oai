@@ -684,11 +684,10 @@ gtpv1u_create_s1u_tunnel(
 	  GTPV1U_ENB_GET_CTXT(message_p).enb_id_for_DC		   =	gtpv1u_teid_data_p->enb_id;
 	  GTPV1U_ENB_GET_CTXT(message_p).ue_id_for_DC 		   = 	gtpv1u_teid_data_p->ue_id;
       GTPV1U_ENB_GET_CTXT(message_p).eps_bearer_id_for_DC  = 	gtpv1u_teid_data_p->eps_bearer_id;
-      GTPV1U_ENB_GET_CTXT(message_p).enb_type_t		   	   =	0; //SeNB
-      if(itti_send_msg_to_task(TASK_X2AP, INSTANCE_DEFAULT, message_p) == 0){
-    	LOG_D(GTPU,"CTXT sent to X2AP\n");
+      if(itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, message_p) == 0){
+    	LOG_D(GTPU,"CTXT sent to X2U\n");
       }else{
-    	LOG_D(GTPU,"Error retrieving ctxt in SeNB for DC\n");
+    	LOG_D(GTPU,"Error retrieving UE context in eNB for DC\n");
       }
     }
   ///

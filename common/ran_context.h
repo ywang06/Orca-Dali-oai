@@ -103,6 +103,7 @@ typedef struct {
   pthread_mutex_t ru_mutex;
   /// condition variable for signaling setup completion of an RU
   pthread_cond_t ru_cond;
+  dc_enb_init_t	*dc_enb_dataP;
 } RAN_CONTEXT_t;
 
 

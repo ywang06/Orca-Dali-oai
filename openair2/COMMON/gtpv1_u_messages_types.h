@@ -109,7 +109,6 @@ typedef struct gtpv1u_enb_get_ctxt_s {
 	module_id_t	enb_id_for_DC;
 	rnti_t		ue_id_for_DC;					///get info to generate context from UE attached in SeNB
 	ebi_t		eps_bearer_id_for_DC;
-	boolean_t	enb_type_t;
 }gtpv1u_enb_get_ctxt_t;
 
 #endif /* GTPV1_U_MESSAGES_TYPES_H_ */
