@@ -43,10 +43,18 @@
 #include <sys/types.h>
 //#include "ue_dc_messages_def.h"
 #include "ue_dc_messages_types.h"
+#include "common/config/config_userapi.h"
+#include "common/ran_context.h"
+//#include "common/config/config_paramdesc.h"
+//#include "common/config/config_load_configmodule.h"
+
+extern RAN_CONTEXT_t RC;
 
 //Function prototyping
 
 void *ue_dc_task(void *arg);
+
+int is_ue_dc_enabled(void);
 
 static
 void udp_init(void);
@@ -187,5 +195,28 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*udp_data_ind){
 		LOG_E(UE_DC, "Error forwarding rlc_sdu to pdcp_data_ind\n");
 	}
 
+}
+
+int is_ue_dc_enabled(void){
+	paramdef_t	UE_DCParams[] = UE_DCPARAMS_DESC;
+	int dc_enabled;
+
+	RC.dc_ue_dataP =(dc_ue_data_t *)malloc(sizeof(dc_ue_data_t));
+	config_get(UE_DCParams, sizeof(UE_DCParams)/sizeof(paramdef_t), UE_CONFIG_STRING_DC_CONFIG);
+	if (strcasecmp(*(UE_DCParams[DC_UE_ENABLED_IDX].strptr), "yes") == 0){
+		RC.dc_ue_dataP->enabled 	  		= TRUE;
+		if(strcasecmp(*(UE_DCParams[DC_UE_TYPE_IDX ].strptr), "mue") == 0){
+			RC.dc_ue_dataP->ue_type	= TRUE; //mUE
+			}else {
+			RC.dc_ue_dataP->ue_type	= FALSE; //sUE;
+			}
+		strcpy(RC.dc_ue_dataP->local_ue_address,*(UE_DCParams[DC_LOCAL_UE_ADDRESS_IDX].strptr));
+		strcpy(RC.dc_ue_dataP->remote_ue_address,*(UE_DCParams[DC_REMOTE_UE_ADDRESS_IDX].strptr));
+		dc_enabled = 1;
+	}else {
+		dc_enabled = 0;
+		RC.dc_ue_dataP->enabled 	  = FALSE;
+	}
+return dc_enabled;
 }
 

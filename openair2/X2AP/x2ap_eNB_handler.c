@@ -533,7 +533,6 @@ int x2ap_eNB_handle_x2_setup_response(instance_t instance,
 	   	 X2AP_ERROR("It's not possible to allocate a message to TASK_X2U\n");
 	     return -1;
 	  }
-
 	RCconfig_DC(message_p); /*get the configuration parameters for dual connectivity*/
 	itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, message_p);
   }

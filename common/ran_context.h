@@ -53,6 +53,7 @@
 #include "PHY/defs_L1_NB_IoT.h"
 
 #include "RRC/LTE/defs_NB_IoT.h"
+#include "ue_dc.h"
 
 
 
@@ -104,6 +105,7 @@ typedef struct {
   /// condition variable for signaling setup completion of an RU
   pthread_cond_t ru_cond;
   dc_enb_init_t	*dc_enb_dataP;
+  dc_ue_data_t	*dc_ue_dataP;
 } RAN_CONTEXT_t;
 
 

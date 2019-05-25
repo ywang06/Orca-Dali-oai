@@ -44,8 +44,8 @@ typedef struct dc_enb_init_s {
 	boolean_t		enabled;
 	boolean_t		enb_type; //True (1)for MeNB, False (0) for SeNB
 	uint32_t		port_for_x2u;
-	char			*remote_enb_address;
-	char			*local_address_for_x2u;
+	char			remote_enb_address[16];
+	char			local_address_for_x2u[16];
 } dc_enb_init_t;
 
 typedef struct dc_enb_data_req_s {

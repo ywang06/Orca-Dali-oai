@@ -58,7 +58,7 @@ void *x2u_enb_task(void *arg) {
 	protocol_ctxt_t		new_ctxt;
 	rb_id_t	eps_bearerID;//revisar
 
-	RC.dc_enb_dataP = (dc_enb_init_t *)malloc(sizeof(dc_enb_init_t));
+	//RC.dc_enb_dataP = (dc_enb_init_t *)malloc(sizeof(dc_enb_init_t));
 	LOG_I(X2U,"Starting X2U task\n");
 	itti_mark_task_ready(TASK_X2U);
 
@@ -76,17 +76,12 @@ void *x2u_enb_task(void *arg) {
 
 		case DC_ENB_INIT:
 		{
-			RC.dc_enb_dataP->enabled 	  = TRUE;
 			RC.dc_enb_dataP->enb_type 	  = received_msg->ittiMsg.dc_enb_init.enb_type;
 			RC.dc_enb_dataP->port_for_x2u = received_msg->ittiMsg.dc_enb_init.port_for_x2u;
-			memcpy(&RC.dc_enb_dataP->local_address_for_x2u, &received_msg->ittiMsg.dc_enb_init.local_address_for_x2u,
+			memcpy(RC.dc_enb_dataP->local_address_for_x2u, received_msg->ittiMsg.dc_enb_init.local_address_for_x2u,
 					sizeof(received_msg->ittiMsg.dc_enb_init.local_address_for_x2u));
-			//RC.dc_enb_dataP->local_address_for_x2u 	= received_msg->ittiMsg.dc_enb_init.local_address_for_x2u;
 			memcpy(&RC.dc_enb_dataP->remote_enb_address, &received_msg->ittiMsg.dc_enb_init.remote_enb_address,
 								sizeof(received_msg->ittiMsg.dc_enb_init.remote_enb_address));
-
-			//*(RC.dc_enb_dataP->remote_enb_address) 	= *(received_msg->ittiMsg.dc_enb_init.remote_enb_address);
-
 			dc_init_udp(&received_msg->ittiMsg.dc_enb_init);
 		}
 
@@ -159,10 +154,8 @@ static
 void dc_init_udp(dc_enb_init_t *dc_enb_init_p){
 	/*This function handle the creation of udp sockets for Dual Connectivity in eNBs*/
 	MessageDef	*message_p;
-	//uint16_t	port = 2154;
-	//char *ue_dc_ip = "192.168.11.150"; //address for UE_DC
 
-	message_p = itti_alloc_new_message(TASK_UDP, UDP_INIT);
+	message_p = itti_alloc_new_message(TASK_X2U, UDP_INIT);
 	if (message_p == NULL) {
 		LOG_E(X2U,"Error allocating the message udp_init\n");
 	}
@@ -177,13 +170,15 @@ int is_dc_enabled(void){
 	paramdef_t	DCParams[] = DCPARAMS_DESC;
 	int dc_enabled;
 
+	RC.dc_enb_dataP =(dc_enb_init_t *)malloc(sizeof(dc_enb_init_t));
 	config_get(DCParams, sizeof(DCParams)/sizeof(paramdef_t), ENB_CONFIG_STRING_DC_CONFIG);
 	if (strcasecmp(*(DCParams[DC_ENABLED_IDX].strptr), "yes") == 0){
-			dc_enabled = 1;
+		RC.dc_enb_dataP->enabled 	  = TRUE;
+		dc_enabled = 1;
 	}else {
 		dc_enabled = 0;
+		RC.dc_enb_dataP->enabled 	  = FALSE;
 	}
-
 return dc_enabled;
 }
 
