@@ -127,15 +127,13 @@ static
 void udp_init(void) {
 	/*This function handle the creation of udp sockets for Dual Connectivity in UEs*/
 	MessageDef	*message_p;
-	uint16_t	port = 2154;
-	char *ue_dc_ip = "192.168.11.150"; //address for UE_DC
 
 	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_INIT);
 	if (message_p == NULL) {
 		LOG_E(UE_DC,"Error allocating the message udp init\n");
 	}
-	UDP_INIT(message_p).port = port;
-	UDP_INIT(message_p).address = ue_dc_ip;
+	UDP_INIT(message_p).port = 2154;
+	UDP_INIT(message_p).address = RC.dc_ue_dataP->local_ue_address;
 	if (itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0) {
 		LOG_D(UE_DC,"Message UDP_INIT has been sent successfully to task UDP_UE_DC\n");
 	}else{
@@ -149,16 +147,16 @@ void send_rlc_sdu(ue_dc_data_req_t	*ue_dc_data_req){
 	/*This function sends the rlc_sdu from sUE or mUE through udp socket*/
 	MessageDef	*message_p = NULL;
 	udp_data_req_t	*udp_data_req_p = NULL;
-	char target_ue[20] = "192.168.11.150"; //IP address for receiver UE
-	char *target_ue_p = NULL;
+	//char target_ue[20] = "192.168.11.150"; //IP address for receiver UE
+	//char *target_ue_p = NULL;
 	unsigned char *buffer;
 
-	target_ue_p = target_ue;
+	//target_ue_p = target_ue;
 	buffer = (unsigned char *)malloc(ue_dc_data_req->sdu_size_dc);
 	memcpy(buffer, ue_dc_data_req->sdu_buffer_dc_p, ue_dc_data_req->sdu_size_dc);
 	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_DATA_REQ);
 	udp_data_req_p = &message_p->ittiMsg.udp_data_req;
-	udp_data_req_p->peer_address = inet_addr(target_ue_p);
+	udp_data_req_p->peer_address = inet_addr(RC.dc_ue_dataP->remote_ue_address);
 	udp_data_req_p->peer_port = 2154;
 	udp_data_req_p->buffer = buffer;
 	udp_data_req_p->buffer_length = (uint32_t)ue_dc_data_req->sdu_size_dc;

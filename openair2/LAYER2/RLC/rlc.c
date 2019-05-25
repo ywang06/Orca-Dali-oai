@@ -590,8 +590,6 @@ void rlc_data_ind     (
   const sdu_size_t  sdu_sizeP,
   mem_block_t      *sdu_pP) {
   //-----------------------------------------------------------------------------
-   boolean_t	dc_flag = TRUE;//flag for Dual Connectivity
-   boolean_t	ue_flag = TRUE; //TRUE for mUE, FALSE for sUE
 
   LOG_D(RLC, PROTOCOL_CTXT_FMT"[%s %u] Display of rlc_data_ind: size %u\n",
         PROTOCOL_CTXT_ARGS(ctxt_pP),
@@ -619,7 +617,7 @@ void rlc_data_ind     (
     }
     get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
 
-  } else if ((ctxt_pP->enb_flag == ENB_FLAG_NO) && (srb_flagP == 0) && (dc_flag == TRUE) && (ue_flag == FALSE)){
+  } else if ((ctxt_pP->enb_flag == ENB_FLAG_NO) && (srb_flagP == 0) && (RC.dc_ue_dataP->enabled == TRUE) && (RC.dc_ue_dataP->ue_type == FALSE)){
 	  MessageDef *msg_dc;
 	  unsigned char	*new_buffer;
 	  new_buffer = (unsigned char *)malloc(sdu_sizeP);
@@ -633,7 +631,6 @@ void rlc_data_ind     (
 		  LOG_E(RLC, "It was not possible to forward RLC_SDU to UE_DC TASK\n");
 	  	 }
   } else {
-	  	  LOG_D(RLC,"este es mUE PANAS\n");
   		 get_pdcp_data_ind_func()(ctxt_pP, srb_flagP, MBMS_flagP, rb_idP, sdu_sizeP, sdu_pP,NULL,NULL);
   }
 }
