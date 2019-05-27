@@ -54,5 +54,12 @@ typedef struct dc_enb_data_req_s {
 	unsigned char 	*pdu_buffer_dcP;
 }dc_enb_data_req_t;
 
+/*
+typedef struct dc_ctxt_s {
+	module_id_t	dc_enb_id;
+	rnti_t		dc_ue_id;					///get info to generate context from UE attached in SeNB
+	ebi_t		dc_eps_bearer_id;
+}dc_ctxt_t;*/
+
 
 #endif /* X2U_MESSAGES_TYPES_H_ */

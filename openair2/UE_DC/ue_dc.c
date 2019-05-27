@@ -41,12 +41,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
-//#include "ue_dc_messages_def.h"
 #include "ue_dc_messages_types.h"
 #include "common/config/config_userapi.h"
 #include "common/ran_context.h"
-//#include "common/config/config_paramdesc.h"
-//#include "common/config/config_load_configmodule.h"
 
 extern RAN_CONTEXT_t RC;
 
@@ -105,7 +102,7 @@ void *ue_dc_task(void *arg) {
 		  break;
 
 		case UDP_DATA_IND:
-			LOG_I(UE_DC,"Message from UE has arrived to UE_DC\n");
+			LOG_D(UE_DC,"Message from UE has arrived to UE_DC\n");
 			recv_rlc_sdu(&ctxt, &received_msg->ittiMsg.udp_data_ind);
 
 			break;
@@ -147,11 +144,8 @@ void send_rlc_sdu(ue_dc_data_req_t	*ue_dc_data_req){
 	/*This function sends the rlc_sdu from sUE or mUE through udp socket*/
 	MessageDef	*message_p = NULL;
 	udp_data_req_t	*udp_data_req_p = NULL;
-	//char target_ue[20] = "192.168.11.150"; //IP address for receiver UE
-	//char *target_ue_p = NULL;
 	unsigned char *buffer;
 
-	//target_ue_p = target_ue;
 	buffer = (unsigned char *)malloc(ue_dc_data_req->sdu_size_dc);
 	memcpy(buffer, ue_dc_data_req->sdu_buffer_dc_p, ue_dc_data_req->sdu_size_dc);
 	message_p = itti_alloc_new_message(TASK_UE_DC, UDP_DATA_REQ);
@@ -161,13 +155,9 @@ void send_rlc_sdu(ue_dc_data_req_t	*ue_dc_data_req){
 	udp_data_req_p->buffer = buffer;
 	udp_data_req_p->buffer_length = (uint32_t)ue_dc_data_req->sdu_size_dc;
 	udp_data_req_p->buffer_offset = 0;
-	if(itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0){
-		LOG_I(UE_DC, "rlc_sdu has been forwarded to pdcp layer in sUE\n");
-	}else {
+	if(itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) != 0){
 		LOG_E(UE_DC, "Message didn't send to UE\n");
 	}
-
-
 }
 
 static
@@ -179,7 +169,6 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*udp_data_ind){
 	mem_block_t	*rlc_sdu_p = NULL;
 	uint16_t	rlc_sdu_size = 0;
 
-	LOG_D(UE_DC,"rlc_sdu is gonna be forwarded to pdpc_data_ind\n");
 	rlc_sdu_size = (unsigned short)udp_data_ind->buffer_length;
 	rlc_sdu_p = (mem_block_t *)malloc(rlc_sdu_size + sizeof(mem_block_t));
 	rlc_sdu_p->next = NULL;

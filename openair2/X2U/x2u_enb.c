@@ -58,11 +58,8 @@ void *x2u_enb_task(void *arg) {
 	protocol_ctxt_t		new_ctxt;
 	rb_id_t	eps_bearerID;//revisar
 
-	//RC.dc_enb_dataP = (dc_enb_init_t *)malloc(sizeof(dc_enb_init_t));
 	LOG_I(X2U,"Starting X2U task\n");
 	itti_mark_task_ready(TASK_X2U);
-
-	//udp_init();
 
 	while (1) {
 		itti_receive_msg(TASK_X2U, &received_msg);
@@ -143,9 +140,9 @@ void x2u_send_pdu_to_rlc(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, ud
 	memcpy(pdcp_pdu_SeNB_p->data, udp_data_ind->buffer, pdcp_pdu_SeNB_size);
 	status = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	if(status){
-		LOG_I(X2U, "PDU has been forwarded successfully to rlc_data_req in SeNB\n");
+		LOG_D(X2U, "PDCP_PDU has been forwarded successfully to rlc_data_req in SeNB\n");
 	}else{
-		LOG_E(X2U, "Error forwarding PDU to rlc_data_req\n");
+		LOG_E(X2U, "Error forwarding PDCP_PDU to rlc_data_req\n");
 	}
 
 }

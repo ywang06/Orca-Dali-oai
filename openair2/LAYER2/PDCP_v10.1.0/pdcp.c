@@ -396,12 +396,12 @@ boolean_t pdcp_data_req(
     } else if ((ctxt_pP->enb_flag == ENB_FLAG_YES) && (srb_flagP == 0) && (modeP == 2) && (RC.dc_enb_dataP->enabled == TRUE) && (RC.dc_enb_dataP->enb_type == TRUE)){
     	/*split bearer for dual connectivity*/
     		if(!(current_sn%2)){
-    			LOG_I(PDCP,"PDCP-PDU %d is sent via MeNB\n",current_sn);
-    			LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
+    			LOG_D(PDCP,"Sending PDCP-PDU %d via MeNB\n",current_sn);
+    			LOG_D(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	       	rlc_status = rlc_data_req(ctxt_pP, srb_flagP, MBMS_FLAG_NO, rb_idP, muiP, confirmP, pdcp_pdu_size, pdcp_pdu_p, NULL, NULL);
     	    } else {
-    	        LOG_I(PDCP, "PDCP-PDU %d is sent via SeNB\n",current_sn);
-    	        LOG_I(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
+    	        LOG_D(PDCP, "Sending PDCP-PDU %d via SeNB\n",current_sn);
+    	        LOG_D(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	        sent_pduP = (unsigned char *)malloc(pdcp_pdu_size);
     	        memcpy(sent_pduP, pdcp_pdu_p->data, pdcp_pdu_size );
     	        messageDC_p = itti_alloc_new_message(TASK_PDCP_ENB, DC_ENB_DATA_REQ);
