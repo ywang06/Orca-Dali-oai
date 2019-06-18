@@ -203,6 +203,7 @@ int is_ue_dc_enabled(void){
 	}else {
 		dc_enabled = 0;
 		RC.dc_ue_dataP->enabled 	  = FALSE;
+		RC.dc_ue_dataP->ue_type		  = TRUE;
 	}
 return dc_enabled;
 }

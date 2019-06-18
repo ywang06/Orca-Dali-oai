@@ -50,7 +50,7 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------*/
 #define UE_DCPARAMS_DESC {  \
 {UE_CONFIG_STRING_DC_UE_ENABLED,                NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
-{UE_CONFIG_STRING_DC_UE_TYPE,	                NULL,      0,         strptr:NULL,   	defstrval:NULL,	    TYPE_STRING,   0},          \
+{UE_CONFIG_STRING_DC_UE_TYPE,	                NULL,      0,         strptr:NULL,   	defstrval:NULL,		TYPE_STRING,   0},          \
 {UE_CONFIG_STRING_DC_LOCAL_UE_ADDRESS,        	NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
 {UE_CONFIG_STRING_DC_REMOTE_UE_ADDRESS,        	NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
 }
