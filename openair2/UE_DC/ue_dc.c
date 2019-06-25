@@ -68,7 +68,7 @@ void *ue_dc_task(void *arg) {
 	MessageDef *received_msg = NULL;
 	protocol_ctxt_t	ctxt;
 
-	LOG_D(UE_DC,"Starting UE_DC task\n");
+	LOG_I(UE_DC,"Starting UE_DC task\n");
 	itti_mark_task_ready(TASK_UE_DC);
 	udp_init();
 
@@ -83,7 +83,7 @@ void *ue_dc_task(void *arg) {
 			break;
 
 		case CTXT_UE_DC:
-			LOG_D(UE_DC,"Context for mUE has arrived to UE_DC task\n");
+			LOG_I(UE_DC,"Context for mUE has arrived to UE_DC task\n");
 			ctxt.module_id 	= CTXT_UE_DC(received_msg).module_id;
 			ctxt.enb_flag 	= ENB_FLAG_NO;
 			ctxt.instance 	= CTXT_UE_DC(received_msg).instance;
@@ -102,7 +102,7 @@ void *ue_dc_task(void *arg) {
 		  break;
 
 		case UDP_DATA_IND:
-			LOG_D(UE_DC,"Message from UE has arrived to UE_DC\n");
+			LOG_I(UE_DC,"Message from UE has arrived to UE_DC\n");
 			recv_rlc_sdu(&ctxt, &received_msg->ittiMsg.udp_data_ind);
 
 			break;
@@ -132,7 +132,7 @@ void udp_init(void) {
 	UDP_INIT(message_p).port = 2154;
 	UDP_INIT(message_p).address = RC.dc_ue_dataP->local_ue_address;
 	if (itti_send_msg_to_task(TASK_UDP_UE_DC, INSTANCE_DEFAULT, message_p) == 0) {
-		LOG_D(UE_DC,"Message UDP_INIT has been sent successfully to task UDP_UE_DC\n");
+		LOG_I(UE_DC,"Message UDP_INIT has been sent successfully to task UDP_UE_DC\n");
 	}else{
 		LOG_E(UE_DC,"The socket for UE_DC has not been created\n");
 	}
@@ -177,7 +177,7 @@ void recv_rlc_sdu(protocol_ctxt_t *ctxt_ue_dc_p, udp_data_ind_t	*udp_data_ind){
 	rlc_sdu_p->data = ((unsigned char *)rlc_sdu_p) + sizeof(mem_block_t);
 	memcpy(rlc_sdu_p->data, udp_data_ind->buffer, rlc_sdu_size);
 	if (pdcp_data_ind(ctxt_ue_dc_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, rlc_sdu_size, rlc_sdu_p )){
-		LOG_D(UE_DC, "rlc_sdu has been forwarded to pdcp_data_ind successfully\n");
+		LOG_I(UE_DC, "rlc_sdu has been forwarded to pdcp_data_ind successfully\n");
 	}else{
 		LOG_E(UE_DC, "Error forwarding rlc_sdu to pdcp_data_ind\n");
 	}

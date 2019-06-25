@@ -76,7 +76,7 @@ void *udp_ue_dc_task(void *arg){
 	      		break;
 
 	      case UDP_INIT: {
-	        LOG_D(UDP_UE_DC, "Received UDP_INIT\n");
+	        LOG_I(UDP_UE_DC, "Received UDP_INIT\n");
 	        sd = udp_ue_create_socket(received_msg->ittiMsg.udp_init.port, received_msg->ittiMsg.udp_init.address);
 	      	}
 	      	  break;
@@ -196,7 +196,7 @@ void udp_ue_recv_data(int sd){
 	        itti_free(TASK_UDP_UE_DC, forwarded_buffer);
 	        return;
 	      }
-	      LOG_D(UDP_UE_DC, "Message has been forwarded to TASK_UE_DC\n");
+	      LOG_I(UDP_UE_DC, "Message has been forwarded to TASK_UE_DC\n");
 	    }
 	  }
 	}
