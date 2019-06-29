@@ -140,7 +140,7 @@ void x2u_send_pdu_to_rlc(protocol_ctxt_t	*ctxt_SeNB_p, rb_id_t	*eps_bearerID, ud
 	memcpy(pdcp_pdu_SeNB_p->data, udp_data_ind->buffer, pdcp_pdu_SeNB_size);
 	status = rlc_data_req(ctxt_SeNB_p, SRB_FLAG_NO, MBMS_FLAG_NO, 1, 0, SDU_CONFIRM_NO, pdcp_pdu_SeNB_size, pdcp_pdu_SeNB_p, NULL, NULL);
 	if(status){
-		LOG_I(X2U, "PDCP_PDU has been forwarded successfully to rlc_data_req in SeNB\n");
+		LOG_D(X2U, "PDCP_PDU has been forwarded successfully to rlc_data_req in SeNB\n");
 	}else{
 		LOG_E(X2U, "Error forwarding PDCP_PDU to rlc_data_req\n");
 	}
@@ -196,7 +196,7 @@ void x2u_pdu_to_udp(dc_enb_data_req_t *dc_enb_data_req_p){
 	udp_data_req_p->buffer_length = (uint32_t)dc_enb_data_req_p->pdu_size_dc;
 	udp_data_req_p->buffer_offset = 0;
 	if(itti_send_msg_to_task(TASK_UDP, INSTANCE_DEFAULT, message_p) == 0){
-		LOG_I(X2U, "PDU has been forwarded to peer eNB\n");
+		LOG_D(X2U, "PDU has been forwarded to peer eNB\n");
 	}else {
 		LOG_E(X2U, "Message didn't send to peer eNB\n");
 	}

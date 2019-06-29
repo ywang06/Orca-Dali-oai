@@ -401,15 +401,14 @@ boolean_t pdcp_data_req(
     	       	rlc_status = rlc_data_req(ctxt_pP, srb_flagP, MBMS_FLAG_NO, rb_idP, muiP, confirmP, pdcp_pdu_size, pdcp_pdu_p, NULL, NULL);
     	    } else {
     	        LOG_D(PDCP, "Sending PDCP-PDU %d via SeNB\n",current_sn);
-    	        LOG_D(PDCP,"Before rlc_data_req 2, srb_flagP: %d, rb_idP: %d \n", srb_flagP, rb_idP);
     	        sent_pduP = (unsigned char *)malloc(pdcp_pdu_size);
     	        memcpy(sent_pduP, pdcp_pdu_p->data, pdcp_pdu_size );
     	        messageDC_p = itti_alloc_new_message(TASK_PDCP_ENB, DC_ENB_DATA_REQ);
     	        DC_ENB_DATA_REQ(messageDC_p).pdu_size_dc = pdcp_pdu_size;
     	        DC_ENB_DATA_REQ(messageDC_p).pdu_buffer_dcP = sent_pduP;
     	       	if (itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, messageDC_p) == 0){
-    	       	   	rlc_status = 1;
-    	       	}else rlc_status = -1;
+    	       	   	LOG_D(PDCP,"Split Bearer sent to SeNB\n");
+    	       	}else LOG_E(PDCP,"Impossible to send Split Bearer\n");
     	      }
     	       	switch (rlc_status) {
     	       		case RLC_OP_STATUS_OK:

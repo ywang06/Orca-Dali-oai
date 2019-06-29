@@ -916,7 +916,7 @@ typedef struct srb1_params_s {
 /*   optname                                          helpstr   paramflags    XXXptr       defXXXval         type           numelt     */
 /*-------------------------------------------------------------------------------------------------------------------------------------*/
 #define DCPARAMS_DESC {  \
-{ENB_CONFIG_STRING_DC_ENABLED,                   NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
+{ENB_CONFIG_STRING_DC_ENABLED,                   NULL,      0,         strptr:NULL,   	defstrval:"no",   	TYPE_STRING,   0},          \
 {ENB_CONFIG_STRING_DC_ENB_TYPE,	                 NULL,      0,         strptr:NULL,   	defstrval:"menb",   TYPE_STRING,   0},          \
 {ENB_CONFIG_STRING_DC_LOCAL_ENB_ADDRESS,        NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
 {ENB_CONFIG_STRING_DC_REMOTE_ENB_ADDRESS,        NULL,      0,         strptr:NULL,   	defstrval:NULL,   	TYPE_STRING,   0},          \
