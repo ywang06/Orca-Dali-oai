@@ -408,7 +408,11 @@ boolean_t pdcp_data_req(
     	        DC_ENB_DATA_REQ(messageDC_p).pdu_buffer_dcP = sent_pduP;
     	       	if (itti_send_msg_to_task(TASK_X2U, INSTANCE_DEFAULT, messageDC_p) == 0){
     	       	   	LOG_D(PDCP,"Split Bearer sent to SeNB\n");
-    	       	}else LOG_E(PDCP,"Impossible to send Split Bearer\n");
+    	       	   	rlc_status = 1;
+    	       	}else {
+    	       		LOG_E(PDCP,"Impossible to send Split Bearer\n");
+    	       		rlc_status =-1;
+    	       	}
     	      }
     	       	switch (rlc_status) {
     	       		case RLC_OP_STATUS_OK:
